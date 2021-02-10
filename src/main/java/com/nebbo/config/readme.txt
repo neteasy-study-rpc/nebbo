@@ -1,0 +1,1 @@
+是nebbo对外的API，用户通过 Config 使用nebbo，隐藏nebbo所有细节。
