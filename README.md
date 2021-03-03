@@ -2,7 +2,6 @@
 
 ![status](https://img.shields.io/github/v/release/neteasy-study-rpc/nebbo?include_prereleases)
 ![license](https://img.shields.io/github/license/neteasy-study-rpc/nebbo)
-![maven](https://img.shields.io/maven-central/v/org.apache.dubbo/dubbo.svg)
 
 Nebbo 是一款高性能, 基于 Java 的开源 RPC 框架.
 
