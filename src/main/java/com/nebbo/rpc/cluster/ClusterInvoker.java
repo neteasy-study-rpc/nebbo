@@ -12,6 +12,7 @@ import com.nebbo.rpc.protocol.Protocol;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,8 @@ public class ClusterInvoker implements Invoker {
         // 1.服务发现 -- 注册中心
         List<RegistryConfig> registryConfigs = referenceConfig.getRegistryConfigs();
         for(RegistryConfig registryConfig: registryConfigs){
-            URI registryUri = new URI(registryConfig.getAddress());
+            String uriStr =  registryConfig.getAddress() + "/" + serviceName;
+            URI registryUri = new URI(uriStr);
             RegistryService registryService =
                     (RegistryService) SpiUtils.getServiceImpl(registryUri.getScheme(), RegistryService.class);
             for(ProtocolConfig protocolConfig: referenceConfig.getProtocolConfigs()) {
@@ -52,8 +54,9 @@ public class ClusterInvoker implements Invoker {
                 registryService.subscribe(serviceName, new NotifyListener() {
                     // 当服务有更新(新增，剔除)时触发，
                     @Override
-                    public void notify(Set<URI> uris) {
+                    public void notify(Set<URI> changedUris) {
                         // 剔除 - 创建好的invoker，是不是存在最小的实例里面
+                        Set<URI> uris =  new HashSet(changedUris);
                         System.out.println("更新前的服务invoker信息" + invokers);
                         for (URI uri : invokers.keySet()) {
                             if (!uris.contains(uri)) {

@@ -1,1 +1,2 @@
 com.nebbo.registry.redis.RedisRegistry
+com.nebbo.registry.zookeeper.ZookeeperRegistry

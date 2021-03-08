@@ -42,10 +42,9 @@ public class NebboBootstrap {
                 // 2.2 创建服务 -- 多个service 用同一个端口 TODO 思考点：一个系统，多个service需要暴露
                 Protocol protocol = (Protocol) SpiUtils.getServiceImpl(protocolConfig.getName(), Protocol.class);
                 protocol.export(exportUri, invoker);
-//                String listenerKey = exportUri.getScheme() + exportUri.getPath() + "/providers";
                 for (RegistryConfig registryConfig : serviceConfig.getRegistryConfigs()) {
-                    URI registryUri = new URI(registryConfig.getAddress());
-                    //getScheme()就是获取RedisRegistry://127.0.0.1:6379中的RedisRegistry
+                    String uriStr =  registryConfig.getAddress() + "/" + serviceConfig.getService().getName();
+                    URI registryUri = new URI(uriStr);
                     RegistryService registryService =
                             (RegistryService) SpiUtils.getServiceImpl(registryUri.getScheme(), RegistryService.class);
                     registryService.init(registryUri);

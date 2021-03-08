@@ -1,5 +1,6 @@
 package com.nebbo.registry;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 public interface RegistryService {
@@ -8,7 +9,7 @@ public interface RegistryService {
      *
      * @param uri
      */
-    public void register(URI uri);
+    public void register(URI uri) throws UnsupportedEncodingException;
 
     /**
      * 订阅指定服务
