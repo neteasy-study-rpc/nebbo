@@ -2,6 +2,8 @@ package com.nebbo.rpc.proxy;
 
 import com.nebbo.rpc.Invoker;
 import com.nebbo.rpc.RpcInvocation;
+import com.nebbo.rpc.protocol.limiter.RedisRateLimiterGetter;
+import com.nebbo.rpc.protocol.limiter.annotation.RedisRateLimiter;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -22,18 +24,6 @@ public class ProxyFactory {
     }
 
     public static Invoker getInvoker(Object proxy, Class type) {
-        return new Invoker() {
-            @Override
-            public Class getInterface() {
-                return type;
-            }
-
-            @Override
-            public Object invoke(RpcInvocation rpcInvocation) throws Exception {
-                // 反射调用对象的方法,参数proxy是具体服务提供的实现类
-                Method method = proxy.getClass().getMethod(rpcInvocation.getMethodName(), rpcInvocation.getParameterTypes());
-                return method.invoke(proxy, rpcInvocation.getArguments());
-            }
-        };
+        return new ServerInvoker(proxy, type);
     }
 }

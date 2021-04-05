@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
 /**
  * Project: xl-rpc-all
  * Package: com.xl.rpc.config.spring
- * FileName: TRPCConfiguration
+ * FileName: nebboConfiguration
  * Author:   Administrator
  * Date:     2020/12/26 21:22
  */
@@ -35,10 +35,10 @@ public class NebboConfigurationRegistrar implements ImportBeanDefinitionRegistra
         // 告诉spring 让它 完成配置对象加载
         BeanDefinitionBuilder beanDefinitionBuilder = null;
 
-        // 1.2 ProtocolConfig - 读取每个配置项trpc.protocol.name，然后赋值给ProtocolConfig对象
+        // 1.2 ProtocolConfig - 读取每个配置项nebbo.protocol.name，然后赋值给ProtocolConfig对象
         beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(ProtocolConfig.class);
         for(Field field:ProtocolConfig.class.getDeclaredFields()){
-            String value = environment.getProperty("trpc.protocol."+ field.getName());// 从配置文件 找到 相匹配的值
+            String value = environment.getProperty("nebbo.protocol."+ field.getName());// 从配置文件 找到 相匹配的值
 //            if(value != null){
 //                value = field.getName().equals("name")?"nebbo":"8081";
 //            }
@@ -46,10 +46,10 @@ public class NebboConfigurationRegistrar implements ImportBeanDefinitionRegistra
         }
         registry.registerBeanDefinition("protocolConfig", beanDefinitionBuilder.getBeanDefinition());
 
-        // 1.2 RegistryConfig - 读取配置 赋值 trpc.registry.name
+        // 1.2 RegistryConfig - 读取配置 赋值 nebbo.registry.name
         beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(RegistryConfig.class);
         for (Field field : RegistryConfig.class.getDeclaredFields()) {
-            String value = environment.getProperty("trpc.registry." + field.getName());// 从配置文件 找到 相匹配的值
+            String value = environment.getProperty("nebbo.registry." + field.getName());// 从配置文件 找到 相匹配的值
             beanDefinitionBuilder.addPropertyValue(field.getName(), value);
         }
         registry.registerBeanDefinition("registryConfig", beanDefinitionBuilder.getBeanDefinition());

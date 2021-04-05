@@ -38,7 +38,7 @@ public class NettyCodec extends ChannelDuplexHandler {
         for(Object o : out){
             ctx.fireChannelRead(o);
         }
-        System.out.println("内容"+msg);
+//        System.out.println("内容"+msg);
     }
     // 出栈
     @Override

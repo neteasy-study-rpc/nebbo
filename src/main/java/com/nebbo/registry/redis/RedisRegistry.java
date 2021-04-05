@@ -72,7 +72,7 @@ public class RedisRegistry implements RegistryService {
                 Jedis jedis = new Jedis(address.getHost(), address.getPort());
                 for (URI service : servicesHeartBeat) {
                     String key = "nebbo-" + service.toString();
-                    System.out.println("flush key:"+key);
+//                    System.out.println("flush key:"+key);
                     jedis.expire(key, TIME_OUT);
                 }
                 jedis.close();

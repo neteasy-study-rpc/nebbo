@@ -7,12 +7,18 @@ import com.nebbo.config.ServiceConfig;
 import com.nebbo.config.annotation.NebboReference;
 import com.nebbo.config.annotation.NebboService;
 import com.nebbo.config.util.NebboBootstrap;
+import com.nebbo.rpc.protocol.limiter.RedisRateLimiterSetter;
+import com.nebbo.rpc.protocol.limiter.annotation.RedisRateLimiter;
+import com.nebbo.rpc.protocol.limiter.config.RedisRateLimiterConfig;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Project: xl-rpc-all
@@ -45,6 +51,7 @@ public class NebboPostProcessor implements ApplicationContextAware, Instantiatio
         if(bean.getClass().isAnnotationPresent(NebboService.class)){
             // 服务端启动后，程序走这里
             System.out.println("找到了需要开放网络访问的service实现类。构建serviceConfig配置");
+            startLimiterTimer(bean); // 方法上有@RedisRateLimiter,则启动令牌桶生成程序
             ServiceConfig serviceConfig = new ServiceConfig();
             serviceConfig.addProtocolConfig(applicationContext.getBean(ProtocolConfig.class));
             serviceConfig.addRegistryConfig(applicationContext.getBean(RegistryConfig.class));
@@ -69,6 +76,7 @@ public class NebboPostProcessor implements ApplicationContextAware, Instantiatio
                 if (!field.isAnnotationPresent(NebboReference.class)) {
                     continue; // 不继续下面的代码，继续循环
                 }
+
                 // 引用相关 配置 保存在一个对象里边 // TODO 思考：如果一个引用需要在多个类被使用，使用缓存来解决
                 ReferenceConfig referenceConfig = new ReferenceConfig();
                 referenceConfig.addRegistryConfig(applicationContext.getBean(RegistryConfig.class));
@@ -89,5 +97,37 @@ public class NebboPostProcessor implements ApplicationContextAware, Instantiatio
         }
 
         return bean;
+    }
+
+    /**
+     * 方法上有@RedisRateLimiter,则启动令牌桶生成程序
+     * @param bean
+     */
+    private void startLimiterTimer(Object bean){
+        RedisRateLimiterSetter redisRateLimiterSetter;
+        for (Method method : bean.getClass().getDeclaredMethods()) {
+            if (method.isAnnotationPresent(RedisRateLimiter.class)) {
+                RedisRateLimiter redisRateLimiter = method.getAnnotation(RedisRateLimiter.class);
+                long permitsPerSecond = redisRateLimiter.permitsPerSecond();
+                String key = redisRateLimiter.key();
+                String host = redisRateLimiter.host();
+                int port = redisRateLimiter.port();
+                RedisRateLimiterConfig config = RedisRateLimiterConfig.builder()
+                        .permitsPerSecond(permitsPerSecond)
+                        .key(key).host(host).port(port)
+                        .luaSetScript().luaTimerScript().build();
+                redisRateLimiterSetter = new RedisRateLimiterSetter(config);
+                // 生成令牌的速率，单位:个/毫秒
+                long period = 1000L / redisRateLimiter.permitsPerSecond();
+                if (redisRateLimiterSetter.isStartTimer()) {
+
+                    ScheduledThreadPoolExecutor threadPoolExecutor = new ScheduledThreadPoolExecutor(1);
+                    threadPoolExecutor.scheduleAtFixedRate((Runnable) redisRateLimiterSetter, 100, period, TimeUnit.MILLISECONDS);
+                    System.out.println("启动redis令牌桶定时程序");
+                } else {
+                    System.out.println("已经启动redis令牌桶定时程序");
+                }
+            }
+        }
     }
 }
