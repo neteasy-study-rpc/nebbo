@@ -99,7 +99,7 @@ public class RedisRegistry implements RegistryService {
                             try {
                                 URI serviceURI = new URI(channel.replace("__keyspace@0__:nebbo-", ""));
                                 if ("set".equals(message)) {
-                                    // 新增
+                                    // 新增，只将客户端想要的服务添加到localCache中
                                     Set<URI> uris = localCache.get(URIUtils.getService(serviceURI));
                                     if (uris != null) {
                                         uris.add(serviceURI);

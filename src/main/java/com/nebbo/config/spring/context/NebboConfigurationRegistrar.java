@@ -39,10 +39,10 @@ public class NebboConfigurationRegistrar implements ImportBeanDefinitionRegistra
         beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(ProtocolConfig.class);
         for(Field field:ProtocolConfig.class.getDeclaredFields()){
             String value = environment.getProperty("nebbo.protocol."+ field.getName());// 从配置文件 找到 相匹配的值
-//            if(value != null){
-//                value = field.getName().equals("name")?"nebbo":"8081";
-//            }
-            beanDefinitionBuilder.addPropertyValue(field.getName(), value);
+            // value为空就是用默认值
+            if(value!=null && !"".equals(value)){
+                beanDefinitionBuilder.addPropertyValue(field.getName(), value);
+            }
         }
         registry.registerBeanDefinition("protocolConfig", beanDefinitionBuilder.getBeanDefinition());
 

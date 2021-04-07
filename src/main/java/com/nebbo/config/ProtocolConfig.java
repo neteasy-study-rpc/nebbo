@@ -9,11 +9,11 @@ package com.nebbo.config;
  * 协议相关配置
  */
 public class ProtocolConfig {
-    private String name;
-    private String port;
-    private String host;
-    private String serialization;
-    private String transporter; // 底层框架
+    private String name="NebboProtocol";
+    private String port="8080";
+    private String host="127.0.0.1";
+    private String serialization="JsonSerialization";
+    private String transporter="Netty4Transporter"; // 底层框架
 
     public String getName() {
         return name;

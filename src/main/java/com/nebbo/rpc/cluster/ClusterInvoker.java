@@ -50,6 +50,7 @@ public class ClusterInvoker implements Invoker {
             RegistryService registryService =
                     (RegistryService) SpiUtils.getServiceImpl(registryUri.getScheme(), RegistryService.class);
             for(ProtocolConfig protocolConfig: referenceConfig.getProtocolConfigs()) {
+
                 registryService.init(registryUri);
                 registryService.subscribe(serviceName, new NotifyListener() {
                     // 当服务有更新(新增，剔除)时触发，
