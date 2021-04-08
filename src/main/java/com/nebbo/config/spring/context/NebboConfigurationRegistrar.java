@@ -34,23 +34,42 @@ public class NebboConfigurationRegistrar implements ImportBeanDefinitionRegistra
                                         BeanNameGenerator importBeanNameGenerator) {
         // 告诉spring 让它 完成配置对象加载
         BeanDefinitionBuilder beanDefinitionBuilder = null;
-
+        String value, systemProperty, fieldPrefix;
         // 1.2 ProtocolConfig - 读取每个配置项nebbo.protocol.name，然后赋值给ProtocolConfig对象
         beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(ProtocolConfig.class);
         for(Field field:ProtocolConfig.class.getDeclaredFields()){
-            String value = environment.getProperty("nebbo.protocol."+ field.getName());// 从配置文件 找到 相匹配的值
-            // value为空就是用默认值
+
+            fieldPrefix = "nebbo.protocol."+ field.getName();
+            systemProperty = System.getProperty(fieldPrefix);  // 命令行参数，优先级最高
+            if(systemProperty!=null && !"".equals(systemProperty)){
+                value = systemProperty;
+            }else{
+                value = environment.getProperty(fieldPrefix);// 从配置文件 找到 相匹配的值
+            }
+
+            // value为空就是用配置类中的默认值
             if(value!=null && !"".equals(value)){
                 beanDefinitionBuilder.addPropertyValue(field.getName(), value);
             }
         }
+
         registry.registerBeanDefinition("protocolConfig", beanDefinitionBuilder.getBeanDefinition());
 
         // 1.2 RegistryConfig - 读取配置 赋值 nebbo.registry.name
         beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(RegistryConfig.class);
         for (Field field : RegistryConfig.class.getDeclaredFields()) {
-            String value = environment.getProperty("nebbo.registry." + field.getName());// 从配置文件 找到 相匹配的值
-            beanDefinitionBuilder.addPropertyValue(field.getName(), value);
+            fieldPrefix = "nebbo.registry."+ field.getName();
+            systemProperty = System.getProperty(fieldPrefix);  // 命令行参数，优先级最高
+            if(systemProperty!=null && !"".equals(systemProperty)){
+                value = systemProperty;
+            }else{
+                value = environment.getProperty(fieldPrefix);// 从配置文件 找到 相匹配的值
+            }
+
+            // value为空就是用配置类中的默认值
+            if(value!=null && !"".equals(value)){
+                beanDefinitionBuilder.addPropertyValue(field.getName(), value);
+            }
         }
         registry.registerBeanDefinition("registryConfig", beanDefinitionBuilder.getBeanDefinition());
     }

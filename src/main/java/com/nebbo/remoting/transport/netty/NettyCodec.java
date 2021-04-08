@@ -6,6 +6,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.util.ReferenceCountUtil;
 
 import java.util.List;
 
@@ -32,12 +33,14 @@ public class NettyCodec extends ChannelDuplexHandler {
         ByteBuf data = (ByteBuf) msg;
         byte[] dataBytes = new byte[data.readableBytes()];
         data.readBytes(dataBytes);
+
         // 2. 格式转换
         List<Object> out = codec.decode(dataBytes);
         // 3. 其他处理器继续处理，决定下一个处理器 处理数据的次数
         for(Object o : out){
             ctx.fireChannelRead(o);
         }
+        ReferenceCountUtil.release(data); // 释放Bytebuf
 //        System.out.println("内容"+msg);
     }
     // 出栈

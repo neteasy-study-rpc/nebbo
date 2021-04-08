@@ -26,9 +26,8 @@ public class NebboBootstrap {
                 // 2.1 组织URL --- 协议://ip:端口/service全类名?配置项=值&配置型2=值...
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(protocolConfig.getName() + "://");
-                // 此处可选择具体网卡设备 -
-                String hostAddress = NetworkInterface.getNetworkInterfaces().
-                        nextElement().getInterfaceAddresses().get(0).getAddress().getHostAddress();
+                // 此处可选择具体网卡设备
+                String hostAddress = protocolConfig.getHost();
                 stringBuilder.append(hostAddress + ":");
                 stringBuilder.append(protocolConfig.getPort() + "/");
                 stringBuilder.append(serviceConfig.getService().getName() + "?");

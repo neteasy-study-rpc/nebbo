@@ -8,7 +8,9 @@ import com.nebbo.rpc.RpcInvocation;
 import com.nebbo.rpc.protocol.nebbo.handler.NebboClientHandler;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Project: xl-rpc-all
@@ -41,7 +43,17 @@ public class NebboClientInvoker implements Invoker {
         // 实现 等待结果的
         CompletableFuture future = NebboClientHandler.waitResult(rpcInvocation.getId());
         // future.get 获取结果
-        Response response = (Response) future.get(60, TimeUnit.SECONDS);
+
+        Response response = null;
+        try {
+            response = (Response) future.get(60, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
         if(response.getStatus() == 200){
             return response.getContent();
         }else{

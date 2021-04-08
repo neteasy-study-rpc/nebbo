@@ -49,7 +49,7 @@ public class RedisRateLimiterConfig {
             return this;
         }
         public Builder host(String h){
-            config.setMes(h);
+            config.setHost(h);
             return this;
         }
         public Builder port(int p){
