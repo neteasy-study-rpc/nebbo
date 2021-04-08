@@ -54,7 +54,7 @@ public class RegistryDirectory {
                             if (!invokers.containsKey(uri)) {
                                 // 一个暴露服务的uri，意味着一个服务实例
                                 Protocol protocol = (Protocol) SpiUtils.getServiceImpl(uri.getScheme(), Protocol.class);
-                                Invoker invoker = protocol.refer(uri); // invoker代表一个长连接
+                                Invoker invoker = protocol.refer(uri, referenceConfig); // invoker代表一个长连接
                                 // 保存起来
                                 invokers.putIfAbsent(uri, invoker);
                             }

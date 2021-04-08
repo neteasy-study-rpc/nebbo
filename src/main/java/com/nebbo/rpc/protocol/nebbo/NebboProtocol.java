@@ -3,6 +3,7 @@ package com.nebbo.rpc.protocol.nebbo;
 import com.nebbo.common.serialize.Serialization;
 import com.nebbo.common.tools.SpiUtils;
 import com.nebbo.common.tools.URIUtils;
+import com.nebbo.config.ReferenceConfig;
 import com.nebbo.remoting.Client;
 import com.nebbo.remoting.Transporter;
 import com.nebbo.rpc.Invoker;
@@ -23,6 +24,7 @@ import java.net.URI;
  * Date:     2020/12/28 0:20
  */
 public class NebboProtocol implements Protocol {
+
     @Override
     public void export(URI exportUri, Invoker invoker) {
         // 通过spi，找到序列化的方式
@@ -45,7 +47,7 @@ public class NebboProtocol implements Protocol {
 
     // 客户端程序走这里，获取netty客户端的代理对象
     @Override
-    public Invoker refer(URI consumerUri) {
+    public Invoker refer(URI consumerUri, ReferenceConfig referenceConfig) {
         // 1. 找到序列化
         String serializationName = URIUtils.getParam(consumerUri, "serialization");
         Serialization serialization = (Serialization) SpiUtils.getServiceImpl(serializationName, Serialization.class);
@@ -60,7 +62,7 @@ public class NebboProtocol implements Protocol {
         Transporter transporter = (Transporter) SpiUtils.getServiceImpl(transporterName, Transporter.class);
         Client connect = transporter.connect(consumerUri, codec, NebboClientHandler);
         // 5. 创建一个invoker 通过网络连接发送数据
-        NebboClientInvoker nebboClientInvoker = new NebboClientInvoker(connect, serialization);
+        NebboClientInvoker nebboClientInvoker = new NebboClientInvoker(connect, serialization, referenceConfig);
         return nebboClientInvoker;
     }
 }

@@ -14,6 +14,8 @@ public class ReferenceConfig {
 
     private String loadbalance;
 
+    private int retryTimes;
+
     public List<RegistryConfig> getRegistryConfigs() {
         return registryConfigs;
     }
@@ -66,5 +68,13 @@ public class ReferenceConfig {
 
     public void setLoadbalance(String loadbalance) {
         this.loadbalance = loadbalance;
+    }
+
+    public int getRetryTimes() {
+        return retryTimes;
+    }
+
+    public void setRetryTimes(int retryTimes) {
+        this.retryTimes = retryTimes;
     }
 }

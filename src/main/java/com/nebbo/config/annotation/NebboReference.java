@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NebboReference {
     String loadbalance() default "RandomLoadBalance";
+    int retryTimes() default 1;
 }

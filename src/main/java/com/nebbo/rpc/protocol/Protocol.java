@@ -1,5 +1,6 @@
 package com.nebbo.rpc.protocol;
 
+import com.nebbo.config.ReferenceConfig;
 import com.nebbo.rpc.Invoker;
 
 import java.net.URI;
@@ -17,5 +18,5 @@ public interface Protocol {
      * @param consumerUri
      * @return
      */
-    public Invoker refer(URI consumerUri);
+    public Invoker refer(URI consumerUri, ReferenceConfig referenceConfig);
 }

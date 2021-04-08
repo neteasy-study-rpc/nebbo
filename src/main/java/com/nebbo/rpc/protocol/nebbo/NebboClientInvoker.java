@@ -1,6 +1,7 @@
 package com.nebbo.rpc.protocol.nebbo;
 
 import com.nebbo.common.serialize.Serialization;
+import com.nebbo.config.ReferenceConfig;
 import com.nebbo.remoting.Client;
 import com.nebbo.rpc.Invoker;
 import com.nebbo.rpc.Response;
@@ -22,9 +23,12 @@ import java.util.concurrent.TimeoutException;
 public class NebboClientInvoker implements Invoker {
     Client client;
     Serialization serialization;
-    public NebboClientInvoker(Client client, Serialization serialization) {
+    ReferenceConfig referenceConfig;
+
+    public NebboClientInvoker(Client client, Serialization serialization, ReferenceConfig referenceConfig) {
         this.client = client;
         this.serialization = serialization;
+        this.referenceConfig = referenceConfig;
     }
 
     @Override
@@ -43,21 +47,27 @@ public class NebboClientInvoker implements Invoker {
         // 实现 等待结果的
         CompletableFuture future = NebboClientHandler.waitResult(rpcInvocation.getId());
         // future.get 获取结果
-
+        int count = 0; // 重试计数
         Response response = null;
-        try {
-            response = (Response) future.get(60, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        }
-        if(response.getStatus() == 200){
-            return response.getContent();
-        }else{
-            throw new Exception("server error:" + response.getContent().toString());
+        while (true){
+            if(count > referenceConfig.getRetryTimes()){
+                throw new Exception("服务端无响应，已经重试" + count + "次");
+            }
+            try {
+                response = (Response) future.get(20, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                e.printStackTrace();
+            }
+            count++;
+            if(response.getStatus() == 200){
+                return response.getContent();
+            }else{
+                throw new Exception("server error:" + response.getContent().toString());
+            }
         }
     }
 }

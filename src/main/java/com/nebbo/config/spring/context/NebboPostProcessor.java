@@ -83,8 +83,10 @@ public class NebboPostProcessor implements ApplicationContextAware, Instantiatio
                 referenceConfig.addProtocolConfig(applicationContext.getBean(ProtocolConfig.class));
                 referenceConfig.setService(field.getType());
 
+
                 NebboReference nebboReference = field.getAnnotation(NebboReference.class);
                 referenceConfig.setLoadbalance(nebboReference.loadbalance());
+                referenceConfig.setRetryTimes(nebboReference.retryTimes()); // 客户端重试次数
 
                 Object referenceBean = NebboBootstrap.getReferenceBean(referenceConfig);
                 // 把获取到的代理对象referenceBean，注入到有@TRpcReference注解的类的成员变量中
